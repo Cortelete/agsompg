@@ -1,0 +1,6 @@
+{
+  "name": "AG Som",
+  "description": "Link na bio de excelência para atendimento automotivo, som, elétrica e acessórios.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
