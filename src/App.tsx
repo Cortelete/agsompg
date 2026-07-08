@@ -21,8 +21,21 @@ export default function App() {
 
   // Form states
   const [contactName, setContactName] = useState('');
-  const [services, setServices] = useState({ sound: false, electrical: false, accessories: false });
+  const [selectedServices, setSelectedServices] = useState<string[]>([]);
+  const [observation, setObservation] = useState('');
   const [devName, setDevName] = useState('');
+
+  const AVAILABLE_SERVICES = [
+    'Auto elétrica',
+    'Insulfilm',
+    'Som',
+    'Alarme travas vidros elétricos',
+    'Manutenção em teto solar',
+    'Concertos em motor arranque',
+    'Concerto em alternador',
+    'Vendas de centrais multimídias',
+    'Acessórios em geral'
+  ];
 
   const handleLogoClick = () => {
     setIsLogoSpinning(true);
@@ -34,17 +47,10 @@ export default function App() {
 
   const handleContactSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const selectedServices = Object.entries(services)
-      .filter(([_, isSelected]) => isSelected)
-      .map(([key]) => {
-        if (key === 'sound') return 'Som';
-        if (key === 'electrical') return 'Elétrica';
-        if (key === 'accessories') return 'Acessórios';
-        return key;
-      })
-      .join(', ');
+    const servicesText = selectedServices.join(', ');
+    const obsText = observation.trim() ? `\n\nObservação (ex: modelo do veículo): ${observation.trim()}` : '';
 
-    const text = `Olá, meu nome é ${contactName.trim() || 'um cliente'}. Gostaria de informações sobre: ${selectedServices || 'seus serviços'}.`;
+    const text = `Olá, meu nome é ${contactName.trim() || 'um cliente'}. Gostaria de informações sobre: ${servicesText || 'seus serviços'}.${obsText}`;
     window.open(`https://wa.me/5542999271852?text=${encodeURIComponent(text)}`, '_blank');
     setActiveModal('none');
   };
@@ -209,26 +215,38 @@ export default function App() {
           </div>
           <div>
             <label className="block text-xs sm:text-sm font-medium text-white/80 mb-2 ml-1">Serviços que procura:</label>
-            <div className="space-y-2.5">
-              {[
-                { id: 'sound', label: 'Som Automotivo' },
-                { id: 'electrical', label: 'Elétrica' },
-                { id: 'accessories', label: 'Acessórios' }
-              ].map((item) => (
-                <label key={item.id} className="flex items-center gap-3 p-3 rounded-xl border border-white/10 bg-white/5 cursor-pointer hover:bg-white/10 transition-colors">
-                  <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors ${services[item.id as keyof typeof services] ? 'bg-white border-white' : 'border-white/40'}`}>
-                    {services[item.id as keyof typeof services] && <Check size={14} className="text-red-900" />}
+            <div className="space-y-2.5 max-h-[40vh] overflow-y-auto custom-scrollbar pr-2">
+              {AVAILABLE_SERVICES.map((item) => (
+                <label key={item} className="flex items-center gap-3 p-3 rounded-xl border border-white/10 bg-white/5 cursor-pointer hover:bg-white/10 transition-colors">
+                  <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors ${selectedServices.includes(item) ? 'bg-white border-white' : 'border-white/40'}`}>
+                    {selectedServices.includes(item) && <Check size={14} className="text-red-900" />}
                   </div>
                   <input 
                     type="checkbox" 
                     className="hidden"
-                    checked={services[item.id as keyof typeof services]}
-                    onChange={(e) => setServices({...services, [item.id]: e.target.checked})}
+                    checked={selectedServices.includes(item)}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setSelectedServices([...selectedServices, item]);
+                      } else {
+                        setSelectedServices(selectedServices.filter(s => s !== item));
+                      }
+                    }}
                   />
-                  <span className="text-sm text-white">{item.label}</span>
+                  <span className="text-sm text-white">{item}</span>
                 </label>
               ))}
             </div>
+          </div>
+          <div>
+            <label className="block text-xs sm:text-sm font-medium text-white/80 mb-1.5 ml-1">Observação (opcional)</label>
+            <input 
+              type="text" 
+              value={observation}
+              onChange={(e) => setObservation(e.target.value)}
+              className="w-full bg-black/20 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-white/50 focus:ring-1 focus:ring-white/50 transition-all text-sm"
+              placeholder="Ex: Marca/modelo do carro, detalhes..."
+            />
           </div>
           <button 
             type="submit"
