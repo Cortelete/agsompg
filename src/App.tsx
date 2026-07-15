@@ -83,23 +83,9 @@ export default function App() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        className="w-full max-w-[420px] bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2.5rem] shadow-[0_20px_50px_-12px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col relative"
+        className="w-full max-w-[420px] bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2.5rem] shadow-[0_20px_50px_-12px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col"
       >
-        {/* Blurred Background Image */}
-        <div className="absolute inset-0 z-0">
-          <img 
-            src="/fundo.png" 
-            alt="" 
-            className="w-full h-full object-cover opacity-40 blur-xl"
-            onError={(e) => {
-              // fallback if image not found, just hide it
-              (e.target as HTMLImageElement).style.display = 'none';
-            }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/60 mix-blend-overlay"></div>
-        </div>
-
-        <div className="p-6 sm:p-8 flex flex-col items-center relative z-10">
+        <div className="p-6 sm:p-8 flex flex-col items-center">
           
           {/* Logo Section */}
           <div className="relative mb-8 w-full flex justify-center">
@@ -152,7 +138,7 @@ export default function App() {
         </div>
 
         {/* Footer */}
-        <div className="mt-auto p-4 border-t border-white/10 bg-black/40 relative z-10 backdrop-blur-md">
+        <div className="mt-auto p-4 border-t border-white/10 bg-black/10">
           <button 
             onClick={() => setActiveModal('developer')}
             className="w-full text-center group"
