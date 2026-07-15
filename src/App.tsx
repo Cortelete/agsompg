@@ -3,11 +3,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Instagram, MapPin, MessageCircle, Star, Wrench, Shield, Check, Send, ChevronRight, Volume2, Car } from 'lucide-react';
 import { motion } from 'motion/react';
 import { LinkButton } from './components/LinkButton';
 import { Modal } from './components/Modal';
+import { PhotoGallery } from './components/PhotoGallery';
 
 export default function App() {
   const [isLogoSpinning, setIsLogoSpinning] = useState(false);
@@ -24,17 +25,20 @@ export default function App() {
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [observation, setObservation] = useState('');
   const [devName, setDevName] = useState('');
+  
+  // Gallery state
+  const [galleryIndex, setGalleryIndex] = useState<number | null>(null);
 
   const AVAILABLE_SERVICES = [
-    'Auto elétrica',
-    'Insulfilm',
-    'Som',
-    'Alarme travas vidros elétricos',
-    'Manutenção em teto solar',
-    'Concertos em motor arranque',
-    'Concerto em alternador',
-    'Vendas de centrais multimídias',
-    'Acessórios em geral'
+    { id: '1', name: 'Auto elétrica', image: '/1.png' },
+    { id: '2', name: 'Insulfilm', image: '/2.png' },
+    { id: '3', name: 'Som', image: '/3.png' },
+    { id: '4', name: 'Alarme travas vidros elétricos', image: '/4.png' },
+    { id: '5', name: 'Manutenção em teto solar', image: '/5.png' },
+    { id: '6', name: 'Concertos em motor arranque', image: '/6.png' },
+    { id: '7', name: 'Concerto em alternador', image: '/7.png' },
+    { id: '8', name: 'Vendas de centrais multimídias', image: '/8.png' },
+    { id: '9', name: 'Acessórios em geral', image: '/9.png' }
   ];
 
   const handleLogoClick = () => {
@@ -79,9 +83,23 @@ export default function App() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        className="w-full max-w-[420px] bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2.5rem] shadow-[0_20px_50px_-12px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col"
+        className="w-full max-w-[420px] bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2.5rem] shadow-[0_20px_50px_-12px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col relative"
       >
-        <div className="p-6 sm:p-8 flex flex-col items-center">
+        {/* Blurred Background Image */}
+        <div className="absolute inset-0 z-0">
+          <img 
+            src="/fundo.png" 
+            alt="" 
+            className="w-full h-full object-cover opacity-40 blur-xl"
+            onError={(e) => {
+              // fallback if image not found, just hide it
+              (e.target as HTMLImageElement).style.display = 'none';
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/60 mix-blend-overlay"></div>
+        </div>
+
+        <div className="p-6 sm:p-8 flex flex-col items-center relative z-10">
           
           {/* Logo Section */}
           <div className="relative mb-8 w-full flex justify-center">
@@ -134,7 +152,7 @@ export default function App() {
         </div>
 
         {/* Footer */}
-        <div className="mt-auto p-4 border-t border-white/10 bg-black/10">
+        <div className="mt-auto p-4 border-t border-white/10 bg-black/40 relative z-10 backdrop-blur-md">
           <button 
             onClick={() => setActiveModal('developer')}
             className="w-full text-center group"
@@ -216,25 +234,42 @@ export default function App() {
           <div>
             <label className="block text-xs sm:text-sm font-medium text-white/80 mb-2 ml-1">Serviços que procura:</label>
             <div className="space-y-2.5 max-h-[40vh] overflow-y-auto custom-scrollbar pr-2">
-              {AVAILABLE_SERVICES.map((item) => (
-                <label key={item} className="flex items-center gap-3 p-3 rounded-xl border border-white/10 bg-white/5 cursor-pointer hover:bg-white/10 transition-colors">
-                  <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors ${selectedServices.includes(item) ? 'bg-white border-white' : 'border-white/40'}`}>
-                    {selectedServices.includes(item) && <Check size={14} className="text-red-900" />}
+              {AVAILABLE_SERVICES.map((item, index) => (
+                <div key={item.id} className="flex items-center gap-3 p-2 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors">
+                  <div 
+                    className="w-12 h-12 rounded-lg bg-black/40 border border-white/10 overflow-hidden shrink-0 cursor-pointer hover:scale-105 transition-transform"
+                    onClick={() => setGalleryIndex(index)}
+                  >
+                    <img 
+                      src={item.image} 
+                      alt={item.name} 
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' fill='%23330000'/%3E%3Ctext x='24' y='24' fill='white' font-family='sans-serif' font-size='10' font-weight='bold' text-anchor='middle' dominant-baseline='middle'%3EAG%3C/text%3E%3C/svg%3E`;
+                      }}
+                    />
                   </div>
-                  <input 
-                    type="checkbox" 
-                    className="hidden"
-                    checked={selectedServices.includes(item)}
-                    onChange={(e) => {
-                      if (e.target.checked) {
-                        setSelectedServices([...selectedServices, item]);
-                      } else {
-                        setSelectedServices(selectedServices.filter(s => s !== item));
-                      }
-                    }}
-                  />
-                  <span className="text-sm text-white">{item}</span>
-                </label>
+                  
+                  <label className="flex flex-1 items-center gap-3 cursor-pointer h-full">
+                    <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors shrink-0 ${selectedServices.includes(item.name) ? 'bg-white border-white' : 'border-white/40'}`}>
+                      {selectedServices.includes(item.name) && <Check size={14} className="text-red-900" />}
+                    </div>
+                    <input 
+                      type="checkbox" 
+                      className="hidden"
+                      checked={selectedServices.includes(item.name)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSelectedServices([...selectedServices, item.name]);
+                        } else {
+                          setSelectedServices(selectedServices.filter(s => s !== item.name));
+                        }
+                      }}
+                    />
+                    <span className="text-sm text-white line-clamp-2">{item.name}</span>
+                  </label>
+                </div>
               ))}
             </div>
           </div>
@@ -382,6 +417,14 @@ export default function App() {
           </div>
         </div>
       </Modal>
+
+      {galleryIndex !== null && (
+        <PhotoGallery 
+          items={AVAILABLE_SERVICES} 
+          initialIndex={galleryIndex} 
+          onClose={() => setGalleryIndex(null)} 
+        />
+      )}
 
     </div>
   );
